@@ -6,7 +6,7 @@ bootstrap=yes
 build_style=configure
 configure_script="./Configure"
 configure_args="--prefix=/usr --openssldir=/etc/ssl --libdir=lib
- shared no-ssl3-method $(vopt_if asm ' ' 'no-asm')
+ shared no-ssl3-method $(vopt_if asm ' ' 'no-asm') $(vopt_if devcrypto 'enable-devcryptoeng')
  -Wa,--noexecstack"
 make_cmd=make
 make_build_args='MAKEDEPPROG="$(CC)'
@@ -21,7 +21,7 @@ checksum=d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca
 conf_files="/etc/ssl/openssl.cnf"
 replaces="libressl>=0"
 
-build_options=asm
+build_options="asm devcrypto"
 
 if [ "$CHROOT_READY" ]; then
 	hostmakedepends="perl"
@@ -29,6 +29,10 @@ if [ "$CHROOT_READY" ]; then
 else
 	# openssl-c_rehash depends on perl, ignore on bootstrap
 	subpackages="libcrypto1.1 libssl1.1 openssl-devel"
+fi
+
+if [ $(vopt_if devcrypto true) ]; then
+	hostmakedepends+=" cryptodev-headers"
 fi
 
 case $XBPS_TARGET_MACHINE in
